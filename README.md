@@ -13,10 +13,10 @@
 |-------------|-------------|-----------|
 | **[skymetron](https://github.com/SkyMetron/skymetron)** | Público | Core Java + Desktop + API + CI/CD |
 | **[skymetron-ai-services](https://github.com/SkyMetron/skymetron-ai-services)** | Privado | Serviços auxiliares Python/FastAPI, Ollama Bridge, Embeddings |
-| **[skymetron-docs](https://github.com/SkyMetron/skymetron-docs)** | Público | ADRs, documentação, arquitetura, roadmap |
+| **[skymetron-docs](https://github.com/SkyMetron/skymetron-docs)** | Privado | ADRs, documentação, arquitetura, roadmap |
 | **[skymetron-deployment](https://github.com/SkyMetron/skymetron-deployment)** | Privado | Scripts, Docker Compose produção, infraestrutura |
 | **[skymetron-monitoring](https://github.com/SkyMetron/skymetron-monitoring)** | Privado | Grafana, Prometheus, Loki — observabilidade |
-| **[sky-vault](https://github.com/SkyMetron/sky-vault)** | Público | Knowledge base — vault Obsidian compartilhado (575+ markdowns, arquitetura, skills, sessões) |
+| **[sky-vault](https://github.com/SkyMetron/sky-vault)** | Privado | Knowledge base — vault Obsidian compartilhado (575+ markdowns, arquitetura, skills, sessões) |
 | **[skymetron-vault](https://github.com/SkyMetron/skymetron-vault)** | Privado | Configuração do vault vetorial, embeddings, dados persistidos |
 | **[skymetron-secrets](https://github.com/SkyMetron/skymetron-secrets)** | Privado | Templates de gerenciamento de secrets (nunca contém secrets reais) |
 
@@ -99,19 +99,33 @@ mvn verify                     # build completo
 
 ## Configuração
 
-Variáveis de ambiente (ver `sky-core/src/main/resources/application.yml`):
+Todas as variáveis de ambiente obrigatórias estão documentadas em [`.env.example`](.env.example). Copie e preencha:
 
-| Variável | Default | Descrição |
-|----------|---------|-----------|
-| `SKY_DB_HOST` | `localhost` | Host PostgreSQL |
-| `SKY_DB_PORT` | `5432` | Porta PostgreSQL |
-| `SKY_DB_NAME` | `skymetron` | Database |
-| `SKY_DB_USER` / `SKY_DB_PASSWORD` | `skymetron` | Credenciais |
-| `SKY_REDIS_HOST` / `SKY_REDIS_PORT` | `localhost:6379` | Redis |
-| `SKY_RABBIT_HOST` / `SKY_RABBIT_PORT` | `localhost:5672` | RabbitMQ |
-| `SKY_AI_SERVICES_URL` | `http://localhost:8001` | Python AI service |
-| `SKY_OLLAMA_URL` | `http://localhost:11434` | Ollama local |
-| `SKY_EMBEDDING_MODEL` | `nomic-embed-text` | Modelo de embeddings |
+```powershell
+cp .env.example .env
+# edite .env com suas credenciais e API keys
+```
+
+Variáveis principais (ver `sky-core/src/main/resources/application.yml`):
+
+| Variável | Obrigatória | Descrição |
+|----------|:-----------:|-----------|
+| `POSTGRES_PASSWORD` | ✅ | Senha do PostgreSQL |
+| `RABBITMQ_PASSWORD` | ✅ | Senha do RabbitMQ |
+| `SKY_JWT_SECRET` | ✅ | Chave secreta JWT (32 bytes) |
+| `SKY_ENCRYPTION_KEY` | ✅ | Chave mestra AES/GCM (base64, 32 bytes) |
+| `SKY_DB_HOST` | — | Host PostgreSQL (default: embutido no Docker) |
+| `SKY_DB_PORT` | — | Porta PostgreSQL (default: `5432`) |
+| `SKY_DB_NAME` | — | Database (default: `skymetron`) |
+| `SKY_DB_USER` / `SKY_DB_PASSWORD` | — | Credenciais DB (herdam de `POSTGRES_*` no Docker) |
+| `SKY_REDIS_HOST` / `SKY_REDIS_PORT` | — | Redis |
+| `SKY_RABBIT_HOST` / `SKY_RABBIT_PORT` | — | RabbitMQ |
+| `SKY_AI_SERVICES_URL` | — | Python AI service |
+| `SKY_OLLAMA_URL` | — | Ollama local |
+| `SKY_EMBEDDING_MODEL` | — | Modelo de embeddings (default: `nomic-embed-text`) |
+| `SKY_DEV_ADMIN_PASSWORD` | — | Senha do usuário dev admin (vazio = desabilitado) |
+| `SKY_CORS_ORIGINS` | — | Origins CORS permitidas (comma-separated) |
+| `VITE_API_BASE_URL` | — | URL base da API no Desktop (default: `http://localhost:8080`) |
 
 ## Documentação
 

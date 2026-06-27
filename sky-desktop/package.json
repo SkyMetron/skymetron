@@ -45,8 +45,8 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "anomalyco",
-      "repo": "SkyMetron",
+      "owner": "SkyMetron",
+      "repo": "skymetron",
       "releaseType": "release"
     },
     "win": {

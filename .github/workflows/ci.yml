@@ -58,7 +58,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Compile check
-        run: python -m py_compile main.py embeddings/service.py
+        run: python -m py_compile main.py $(find . -name '*.py' -not -path './venv/*' 2>/dev/null || echo main.py)
 
   desktop-build:
     name: Desktop (sky-desktop)

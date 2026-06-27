@@ -1,0 +1,104 @@
+spring:
+  application:
+    name: skymetron-core
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: jdbc:postgresql://${SKY_DB_HOST:localhost}:${SKY_DB_PORT:5432}/${SKY_DB_NAME:skymetron}
+    username: ${SKY_DB_USER:skymetron}
+    password: ${SKY_DB_PASSWORD:skymetron}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      pool-name: SkyHikariPool
+      connection-timeout: 5000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+      validation-timeout: 3000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        format_sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  cache:
+    type: redis
+    redis:
+      time-to-live: 5m
+      cache-null-values: false
+  data:
+    redis:
+      host: ${SKY_REDIS_HOST:localhost}
+      port: ${SKY_REDIS_PORT:6379}
+      timeout: 2s
+      connect-timeout: 2s
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 4
+          max-wait: 2s
+  rabbitmq:
+    host: ${SKY_RABBIT_HOST:localhost}
+    port: ${SKY_RABBIT_PORT:5672}
+    username: ${SKY_RABBIT_USER:skymetron}
+    password: ${SKY_RABBIT_PASSWORD:skymetron}
+    listener:
+      simple:
+        acknowledge-mode: auto
+        prefetch: 5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0
+
+sky:
+  security:
+    jwt-secret: ${SKY_JWT_SECRET:skymetron-dev-jwt-secret-key-that-is-32bytes!}
+    jwt-expiration-ms: 86400000
+    master-key: ${SKY_ENCRYPTION_KEY:c2t5bWV0cm9uLTMyLWJ5dGUtbWFzdGVyLWtleS1hYWE=}
+    rate-limit: 120
+  ai-services:
+    base-url: ${SKY_AI_SERVICES_URL:http://localhost:8001}
+  ollama:
+    base-url: ${SKY_OLLAMA_URL:http://localhost:11434}
+    embedding-model: ${SKY_EMBEDDING_MODEL:nomic-embed-text}
+    chat-model: ${SKY_OLLAMA_CHAT_MODEL:llama3.1:8b}
+    embedding-dimensions: 768
+  budget:
+    max-cost-cents-per-day: 0
+    mode: free-only
+    reserve-percent-for-user: 80
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+server:
+  port: ${SKY_CORE_PORT:8080}
+  shutdown: graceful

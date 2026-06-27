@@ -1,0 +1,58 @@
+name: skymetron-observability
+
+# SkyMetron Observability Stack — Sprint 7
+# Grafana + Prometheus + Loki
+# Usage: docker compose -f docker-compose.observability.yml up -d
+
+services:
+  prometheus:
+    image: prom/prometheus:v3.0.0
+    container_name: skymetron-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - skymetron-prometheus-data:/prometheus
+    networks:
+      - skymetron-obs-net
+
+  loki:
+    image: grafana/loki:3.3.0
+    container_name: skymetron-loki
+    user: "0"
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - skymetron-loki-data:/tmp/loki
+    command: -config.file=/etc/loki/loki-config.yml
+    networks:
+      - skymetron-obs-net
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: skymetron-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: skymetron
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - skymetron-grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - loki
+    networks:
+      - skymetron-obs-net
+
+volumes:
+  skymetron-prometheus-data:
+  skymetron-loki-data:
+  skymetron-grafana-data:
+
+networks:
+  skymetron-obs-net:
+    driver: bridge

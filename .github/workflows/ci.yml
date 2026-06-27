@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  java-build-test:
+    name: Java (sky-monolith)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sky-monolith
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build (skip tests)
+        run: mvn -B clean install -DskipTests
+
+      - name: Unit tests
+        run: mvn -B test
+
+      - name: Upload surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: sky-monolith/**/target/surefire-reports/
+          if-no-files-found: ignore
+
+  python-lint-test:
+    name: Python (sky-ai-services)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sky-ai-services
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Compile check
+        run: python -m py_compile main.py embeddings/service.py
+
+  desktop-build:
+    name: Desktop (sky-desktop)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sky-desktop
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: sky-desktop/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Vite build
+        run: npx vite build

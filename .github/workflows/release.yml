@@ -1,0 +1,169 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  backend-package:
+    name: Backend JAR
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sky-monolith
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build JAR
+        run: mvn -B clean package -DskipTests
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: sky-core-jar
+          path: sky-monolith/sky-core/target/sky-core-*.jar
+          if-no-files-found: error
+
+  desktop-build:
+    name: Desktop (${{ matrix.os }})
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            artifact: SkyMetron-*.AppImage
+          - os: macos-latest
+            platform: mac
+            artifact: SkyMetron-*.dmg
+          - os: windows-latest
+            platform: win
+            artifact: SkyMetron-*.exe
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: sky-desktop
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: sky-desktop/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and package
+        run: npm run electron:build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sky-desktop-${{ matrix.platform }}
+          path: sky-desktop/release/${{ matrix.artifact }}
+          if-no-files-found: warn
+
+  docker-images:
+    name: Docker images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version
+        id: version
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push sky-core
+        uses: docker/build-push-action@v6
+        with:
+          context: sky-monolith
+          file: sky-monolith/docker/Dockerfile.sky-core
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/sky-core:${{ steps.version.outputs.tag }}
+            ghcr.io/${{ github.repository }}/sky-core:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push sky-ai-services
+        uses: docker/build-push-action@v6
+        with:
+          context: sky-ai-services
+          file: sky-ai-services/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/sky-ai-services:${{ steps.version.outputs.tag }}
+            ghcr.io/${{ github.repository }}/sky-ai-services:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  create-release:
+    name: Create GitHub Release
+    needs: [backend-package, desktop-build, docker-images]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Generate changelog
+        id: changelog
+        uses: microsoft/action-release-scope@v1
+        continue-on-error: true
+
+      - name: Extract version
+        id: version
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: SkyMetron ${{ steps.version.outputs.tag }}
+          body: |
+            ## SkyMetron ${{ steps.version.outputs.tag }}
+
+            ### Docker Images
+            - `ghcr.io/${{ github.repository }}/sky-core:${{ steps.version.outputs.tag }}`
+            - `ghcr.io/${{ github.repository }}/sky-ai-services:${{ steps.version.outputs.tag }}`
+
+            ### Backend
+            - `sky-core-*.jar` — Spring Boot executable JAR (Java 21)
+
+            ### Desktop Downloads
+            See assets below for platform-specific installers.
+
+            ### Upgrade Notes
+            See [UPGRADING.md](./UPGRADING.md) for migration instructions.
+          files: |
+            sky-core-jar/*.jar
+            sky-desktop-linux/*.AppImage
+            sky-desktop-mac/*.dmg
+            sky-desktop-win/*.exe
+          generate_release_notes: true

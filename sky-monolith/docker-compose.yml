@@ -1,0 +1,133 @@
+name: skymetron
+
+# SkyMetron — Sprint 0 foundation stack.
+# Brings up PostgreSQL (pgvector), Redis, RabbitMQ, sky-ai-services, sky-core.
+#
+# Usage:
+#   docker compose up -d                       # start infra + services
+#   docker compose up -d postgres redis rabbitmq  # infra only
+#   docker compose logs -f sky-core            # tail core logs
+#   docker compose down                        # stop everything
+#
+# Ollama is expected to run on the host (http://localhost:11434).
+# Pull the embedding model once:  ollama pull nomic-embed-text
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: skymetron-postgres
+    environment:
+      POSTGRES_DB: skymetron
+      POSTGRES_USER: skymetron
+      POSTGRES_PASSWORD: skymetron
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - skymetron-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skymetron -d skymetron"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - skymetron-net
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: skymetron-redis
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - skymetron-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - skymetron-net
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: skymetron-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: skymetron
+      RABBITMQ_DEFAULT_PASS: skymetron
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - skymetron-rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - skymetron-net
+
+  ai-services:
+    build:
+      context: ../sky-ai-services
+      dockerfile: Dockerfile
+    container_name: skymetron-ai-services
+    environment:
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      EMBEDDING_MODEL: nomic-embed-text
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - skymetron-net
+
+  sky-core:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.sky-core
+    container_name: skymetron-core
+    environment:
+      SKY_DB_HOST: postgres
+      SKY_DB_PORT: "5432"
+      SKY_DB_NAME: skymetron
+      SKY_DB_USER: skymetron
+      SKY_DB_PASSWORD: skymetron
+      SKY_REDIS_HOST: redis
+      SKY_REDIS_PORT: "6379"
+      SKY_RABBIT_HOST: rabbitmq
+      SKY_RABBIT_PORT: "5672"
+      SKY_RABBIT_USER: skymetron
+      SKY_RABBIT_PASSWORD: skymetron
+      SKY_AI_SERVICES_URL: http://ai-services:8000
+      SKY_OLLAMA_URL: http://host.docker.internal:11434
+      SKY_EMBEDDING_MODEL: nomic-embed-text
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      ai-services:
+        condition: service_healthy
+    networks:
+      - skymetron-net
+
+volumes:
+  skymetron-pgdata:
+  skymetron-redis-data:
+  skymetron-rabbitmq-data:
+
+networks:
+  skymetron-net:
+    driver: bridge

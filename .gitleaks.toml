@@ -1,0 +1,11 @@
+[extend]
+use = "/config/default"
+
+[allowlist]
+paths = [
+  '''\.env$''',
+  '''\.env\..+$''',
+  '''\.env\.example$''',
+  '''application-test\.yml$''',
+]
+description = "Allow .env files (gitignored) and test configs with dummy values"

@@ -9,6 +9,7 @@
 # --- Secrets / environment ---
 .env
 .env.*
+*.local
 !.env.example
 *.pem
 *.key
@@ -110,6 +111,10 @@ loki/data/
 *.sublime-workspace
 *.sublime-project
 
+# --- Obsidian ---
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
 # --- OS ---
 .DS_Store
 Thumbs.db
@@ -121,6 +126,7 @@ $RECYCLE.BIN/
 **/surefire-reports/
 **/failsafe-reports/
 **/site/
+test-results/
 
 # Other SkyMetron repos (siblings, not submodules)
 /sky-vault/

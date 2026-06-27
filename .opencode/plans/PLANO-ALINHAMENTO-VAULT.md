@@ -93,7 +93,7 @@ SkyMetron/
 
 **Caminho OBSIDIAN:**
 ```
-C:\Users\USUARIO\Desktop\PROJETOS\SkyMetron\ENIAC_METRON\knowledge
+<YOUR_LOCAL_ENIAC_VAULT_PATH>/ENIAC_METRON/knowledge
 ```
 (Abra como vault: File → Open Vault → Open folder as vault)
 

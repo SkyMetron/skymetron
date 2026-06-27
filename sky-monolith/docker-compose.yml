@@ -21,9 +21,9 @@ services:
     image: pgvector/pgvector:pg16
     container_name: skymetron-postgres
     environment:
-      POSTGRES_DB: skymetron
-      POSTGRES_USER: skymetron
-      POSTGRES_PASSWORD: skymetron
+      POSTGRES_DB: ${POSTGRES_DB:-skymetron}
+      POSTGRES_USER: ${POSTGRES_USER:-skymetron}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
     ports:
       - "5432:5432"
@@ -57,8 +57,8 @@ services:
     image: rabbitmq:3.13-management
     container_name: skymetron-rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: skymetron
-      RABBITMQ_DEFAULT_PASS: skymetron
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-skymetron}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD is required}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -76,7 +76,7 @@ services:
     image: ghcr.io/skymetron/skymetron-ai-services/sky-ai-services:latest
     container_name: skymetron-ai-services
     environment:
-      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       EMBEDDING_MODEL: nomic-embed-text
     ports:
       - "8001:8000"
@@ -100,16 +100,16 @@ services:
       SKY_DB_HOST: postgres
       SKY_DB_PORT: "5432"
       SKY_DB_NAME: skymetron
-      SKY_DB_USER: skymetron
-      SKY_DB_PASSWORD: skymetron
+      SKY_DB_USER: ${POSTGRES_USER:-skymetron}
+      SKY_DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       SKY_REDIS_HOST: redis
       SKY_REDIS_PORT: "6379"
       SKY_RABBIT_HOST: rabbitmq
       SKY_RABBIT_PORT: "5672"
-      SKY_RABBIT_USER: skymetron
-      SKY_RABBIT_PASSWORD: skymetron
+      SKY_RABBIT_USER: ${RABBITMQ_USER:-skymetron}
+      SKY_RABBIT_PASSWORD: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD is required}
       SKY_AI_SERVICES_URL: http://ai-services:8000
-      SKY_OLLAMA_URL: http://host.docker.internal:11434
+      SKY_OLLAMA_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       SKY_EMBEDDING_MODEL: nomic-embed-text
     ports:
       - "8080:8080"

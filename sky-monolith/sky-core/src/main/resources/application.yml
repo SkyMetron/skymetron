@@ -5,9 +5,9 @@ spring:
     virtual:
       enabled: true
   datasource:
-    url: jdbc:postgresql://${SKY_DB_HOST:localhost}:${SKY_DB_PORT:5432}/${SKY_DB_NAME:skymetron}
-    username: ${SKY_DB_USER:skymetron}
-    password: ${SKY_DB_PASSWORD:skymetron}
+    url: jdbc:postgresql://${SKY_DB_HOST:}:${SKY_DB_PORT:5432}/${SKY_DB_NAME:skymetron}
+    username: ${SKY_DB_USER:}
+    password: ${SKY_DB_PASSWORD:}
     hikari:
       maximum-pool-size: 20
       minimum-idle: 5
@@ -36,7 +36,7 @@ spring:
       cache-null-values: false
   data:
     redis:
-      host: ${SKY_REDIS_HOST:localhost}
+      host: ${SKY_REDIS_HOST:}
       port: ${SKY_REDIS_PORT:6379}
       timeout: 2s
       connect-timeout: 2s
@@ -47,10 +47,10 @@ spring:
           min-idle: 4
           max-wait: 2s
   rabbitmq:
-    host: ${SKY_RABBIT_HOST:localhost}
+    host: ${SKY_RABBIT_HOST:}
     port: ${SKY_RABBIT_PORT:5672}
-    username: ${SKY_RABBIT_USER:skymetron}
-    password: ${SKY_RABBIT_PASSWORD:skymetron}
+    username: ${SKY_RABBIT_USER:}
+    password: ${SKY_RABBIT_PASSWORD:}
     listener:
       simple:
         acknowledge-mode: auto
@@ -75,14 +75,19 @@ management:
 
 sky:
   security:
-    jwt-secret: ${SKY_JWT_SECRET:skymetron-dev-jwt-secret-key-that-is-32bytes!}
+    jwt-secret: ${SKY_JWT_SECRET:}
     jwt-expiration-ms: 86400000
-    master-key: ${SKY_ENCRYPTION_KEY:c2t5bWV0cm9uLTMyLWJ5dGUtbWFzdGVyLWtleS1hYWE=}
+    master-key: ${SKY_ENCRYPTION_KEY:}
     rate-limit: 120
+    dev-passwords:
+      admin: ${SKY_DEV_ADMIN_PASSWORD:}
+      user: ${SKY_DEV_USER_PASSWORD:}
+      readonly: ${SKY_DEV_READONLY_PASSWORD:}
+    cors-origins: ${SKY_CORS_ORIGINS:http://localhost:5173,capacitor://localhost,http://localhost}
   ai-services:
-    base-url: ${SKY_AI_SERVICES_URL:http://localhost:8001}
+    base-url: ${SKY_AI_SERVICES_URL:}
   ollama:
-    base-url: ${SKY_OLLAMA_URL:http://localhost:11434}
+    base-url: ${SKY_OLLAMA_URL:}
     embedding-model: ${SKY_EMBEDDING_MODEL:nomic-embed-text}
     chat-model: ${SKY_OLLAMA_CHAT_MODEL:llama3.1:8b}
     embedding-dimensions: 768

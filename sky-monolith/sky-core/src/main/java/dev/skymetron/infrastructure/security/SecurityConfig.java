@@ -1,5 +1,6 @@
 package dev.skymetron.infrastructure.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -28,6 +29,18 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
     private final RateLimitingFilter rateLimiter;
+
+    @Value("${sky.security.dev-passwords.admin:}")
+    private String adminPassword;
+
+    @Value("${sky.security.dev-passwords.user:}")
+    private String userPassword;
+
+    @Value("${sky.security.dev-passwords.readonly:}")
+    private String readonlyPassword;
+
+    @Value("${sky.security.cors-origins:http://localhost:5173,capacitor://localhost,http://localhost}")
+    private List<String> corsOrigins;
 
     public SecurityConfig(JwtAuthenticationFilter jwtFilter, RateLimitingFilter rateLimiter) {
         this.jwtFilter = jwtFilter;
@@ -61,27 +74,34 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        var admin = User.builder()
-                .username("admin")
-                .password(encoder.encode("admin123"))
-                .roles("ADMIN", "USER")
-                .build();
-        var user = User.builder()
-                .username("user")
-                .password(encoder.encode("user123"))
-                .roles("USER")
-                .build();
-        var reader = User.builder()
-                .username("readonly")
-                .password(encoder.encode("readonly123"))
-                .roles("READONLY")
-                .build();
-        return new InMemoryUserDetailsManager(admin, user, reader);
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        if (!adminPassword.isBlank()) {
+            manager.createUser(User.builder()
+                    .username("admin")
+                    .password(encoder.encode(adminPassword))
+                    .roles("ADMIN", "USER")
+                    .build());
+        }
+        if (!userPassword.isBlank()) {
+            manager.createUser(User.builder()
+                    .username("user")
+                    .password(encoder.encode(userPassword))
+                    .roles("USER")
+                    .build());
+        }
+        if (!readonlyPassword.isBlank()) {
+            manager.createUser(User.builder()
+                    .username("readonly")
+                    .password(encoder.encode(readonlyPassword))
+                    .roles("READONLY")
+                    .build());
+        }
+        return manager;
     }
 
     private CorsConfigurationSource corsSource() {
         var config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173", "capacitor://localhost", "http://localhost"));
+        config.setAllowedOrigins(corsOrigins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

@@ -132,11 +132,6 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
 
-      - name: Generate changelog
-        id: changelog
-        uses: microsoft/action-release-scope@v1
-        continue-on-error: true
-
       - name: Extract version
         id: version
         run: echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
@@ -146,21 +141,7 @@ jobs:
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           name: SkyMetron ${{ steps.version.outputs.tag }}
-          body: |
-            ## SkyMetron ${{ steps.version.outputs.tag }}
-
-            ### Docker Images
-            - `ghcr.io/${{ github.repository }}/sky-core:${{ steps.version.outputs.tag }}`
-            - `ghcr.io/${{ github.repository }}/sky-ai-services:${{ steps.version.outputs.tag }}`
-
-            ### Backend
-            - `sky-core-*.jar` — Spring Boot executable JAR (Java 21)
-
-            ### Desktop Downloads
-            See assets below for platform-specific installers.
-
-            ### Upgrade Notes
-            See [UPGRADING.md](./UPGRADING.md) for migration instructions.
+          body_path: CHANGELOG.md
           files: |
             sky-core-jar/*.jar
             sky-desktop-linux/*.AppImage

@@ -121,3 +121,12 @@ $RECYCLE.BIN/
 **/surefire-reports/
 **/failsafe-reports/
 **/site/
+
+# Other SkyMetron repos (siblings, not submodules)
+/sky-vault/
+/skymetron-ai-services/
+/skymetron-deployment/
+/skymetron-docs/
+/skymetron-monitoring/
+/skymetron-secrets/
+/skymetron-vault/

@@ -98,6 +98,9 @@ jobs:
         id: version
         run: echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
 
+      - name: Set lowercase repo
+        run: echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
       - name: Build and push sky-core
         uses: docker/build-push-action@v6
         with:
@@ -105,8 +108,8 @@ jobs:
           file: sky-monolith/docker/Dockerfile.sky-core
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/sky-core:${{ steps.version.outputs.tag }}
-            ghcr.io/${{ github.repository }}/sky-core:latest
+            ghcr.io/${{ env.REPO_LOWER }}/sky-core:${{ steps.version.outputs.tag }}
+            ghcr.io/${{ env.REPO_LOWER }}/sky-core:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -117,8 +120,8 @@ jobs:
           file: sky-ai-services/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/sky-ai-services:${{ steps.version.outputs.tag }}
-            ghcr.io/${{ github.repository }}/sky-ai-services:latest
+            ghcr.io/${{ env.REPO_LOWER }}/sky-ai-services:${{ steps.version.outputs.tag }}
+            ghcr.io/${{ env.REPO_LOWER }}/sky-ai-services:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -131,6 +134,9 @@ jobs:
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
+
+      - name: Set lowercase repo
+        run: echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
 
       - name: Extract version
         id: version

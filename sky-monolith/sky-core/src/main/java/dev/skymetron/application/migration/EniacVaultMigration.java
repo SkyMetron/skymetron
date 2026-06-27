@@ -18,7 +18,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Orchestrates the ENIAC Vault → SkyMetron migration.
+ * Orchestrates the sky-vault → SkyMetron migration.
+ *
+ * <p>The vault was extracted from legacy ENIAC_METRON into
+ * <a href="https://github.com/SkyMetron/sky-vault">SkyMetron/sky-vault</a>.
  *
  * <p>Phases:
  * <ol>
@@ -41,7 +44,7 @@ public class EniacVaultMigration {
     private final EmbeddingPort embeddingPort;
     private final MemoryService memoryService;
 
-    @Value("${sky.migration.eniac-vault-path:../ENIAC_METRON}")
+    @Value("${sky.migration.vault-path:../sky-vault/knowledge}")
     private String vaultPath;
 
     public EniacVaultMigration(VaultScanner scanner, EmbeddingPort embeddingPort, MemoryService memoryService) {
@@ -53,7 +56,7 @@ public class EniacVaultMigration {
     public MigrationReport run(Path explicitVaultPath) {
         Path vaultRoot = explicitVaultPath != null ? explicitVaultPath : Path.of(vaultPath);
         long start = System.currentTimeMillis();
-        log.info("Starting ENIAC Vault migration from {}", vaultRoot);
+        log.info("Starting vault migration from {}", vaultRoot);
 
         List<String> errors = new ArrayList<>();
         List<String> lowConfidence = new ArrayList<>();

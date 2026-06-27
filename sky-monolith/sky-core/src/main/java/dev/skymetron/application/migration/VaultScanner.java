@@ -17,8 +17,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Phase 1-3: Scans the ENIAC vault directory, classifies documents, strips
+ * Phase 1-3: Scans the sky-vault directory, classifies documents, strips
  * frontmatter, extracts tags, and computes content hashes.
+ *
+ * <p>Vault source: <a href="https://github.com/SkyMetron/sky-vault">SkyMetron/sky-vault</a>
+ * (extracted from legacy ENIAC_METRON).
  */
 @Component
 public class VaultScanner {
@@ -31,7 +34,7 @@ public class VaultScanner {
     /**
      * Recursively scan a directory for markdown files.
      *
-     * @param vaultRoot root of the vault (e.g. ENIAC_METRON/knowledge)
+     * @param vaultRoot root of the vault (e.g. ../sky-vault/knowledge)
      * @return list of classified vault documents
      */
     public List<VaultDocument> scan(Path vaultRoot) throws IOException {

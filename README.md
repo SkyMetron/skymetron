@@ -16,6 +16,7 @@
 | **[skymetron-docs](https://github.com/SkyMetron/skymetron-docs)** | Público | ADRs, documentação, arquitetura, roadmap |
 | **[skymetron-deployment](https://github.com/SkyMetron/skymetron-deployment)** | Privado | Scripts, Docker Compose produção, infraestrutura |
 | **[skymetron-monitoring](https://github.com/SkyMetron/skymetron-monitoring)** | Privado | Grafana, Prometheus, Loki — observabilidade |
+| **[sky-vault](https://github.com/SkyMetron/sky-vault)** | Público | Knowledge base — vault Obsidian compartilhado (575+ markdowns, arquitetura, skills, sessões) |
 | **[skymetron-vault](https://github.com/SkyMetron/skymetron-vault)** | Privado | Configuração do vault vetorial, embeddings, dados persistidos |
 | **[skymetron-secrets](https://github.com/SkyMetron/skymetron-secrets)** | Privado | Templates de gerenciamento de secrets (nunca contém secrets reais) |
 

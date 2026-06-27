@@ -114,18 +114,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build and push sky-ai-services
-        uses: docker/build-push-action@v6
-        with:
-          context: sky-ai-services
-          file: sky-ai-services/Dockerfile
-          push: true
-          tags: |
-            ghcr.io/${{ env.REPO_LOWER }}/sky-ai-services:${{ steps.version.outputs.tag }}
-            ghcr.io/${{ env.REPO_LOWER }}/sky-ai-services:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
   create-release:
     name: Create GitHub Release
     needs: [backend-package, desktop-build, docker-images]

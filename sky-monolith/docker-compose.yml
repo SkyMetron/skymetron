@@ -1,13 +1,17 @@
 name: skymetron
 
-# SkyMetron — Sprint 0 foundation stack.
-# Brings up PostgreSQL (pgvector), Redis, RabbitMQ, sky-ai-services, sky-core.
+# SkyMetron — v0.1.0-beta stack.
+# Brings up PostgreSQL (pgvector), Redis, RabbitMQ, sky-core.
 #
 # Usage:
-#   docker compose up -d                       # start infra + services
+#   docker compose up -d                          # start infra + services
 #   docker compose up -d postgres redis rabbitmq  # infra only
-#   docker compose logs -f sky-core            # tail core logs
-#   docker compose down                        # stop everything
+#   docker compose logs -f sky-core               # tail core logs
+#   docker compose down                           # stop everything
+#
+# AI Services (sky-ai-services) now lives in its own repo:
+#   https://github.com/SkyMetron/skymetron-ai-services
+#   Pre-built image: ghcr.io/skymetron/skymetron-ai-services/sky-ai-services:latest
 #
 # Ollama is expected to run on the host (http://localhost:11434).
 # Pull the embedding model once:  ollama pull nomic-embed-text
@@ -69,9 +73,7 @@ services:
       - skymetron-net
 
   ai-services:
-    build:
-      context: ../sky-ai-services
-      dockerfile: Dockerfile
+    image: ghcr.io/skymetron/skymetron-ai-services/sky-ai-services:latest
     container_name: skymetron-ai-services
     environment:
       OLLAMA_BASE_URL: http://host.docker.internal:11434

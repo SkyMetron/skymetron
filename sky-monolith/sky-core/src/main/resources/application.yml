@@ -79,11 +79,10 @@ sky:
     jwt-expiration-ms: 86400000
     master-key: ${SKY_ENCRYPTION_KEY:}
     rate-limit: 120
-    dev-passwords:
-      admin: ${SKY_DEV_ADMIN_PASSWORD:}
-      user: ${SKY_DEV_USER_PASSWORD:}
-      readonly: ${SKY_DEV_READONLY_PASSWORD:}
     cors-origins: ${SKY_CORS_ORIGINS:http://localhost:5173,capacitor://localhost,http://localhost}
+  github:
+    client-id: ${SKY_GITHUB_CLIENT_ID:}
+    client-secret: ${SKY_GITHUB_CLIENT_SECRET:}
   ai-services:
     base-url: ${SKY_AI_SERVICES_URL:}
   ollama:

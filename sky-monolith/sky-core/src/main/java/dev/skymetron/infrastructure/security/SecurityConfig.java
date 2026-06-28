@@ -9,11 +9,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -29,15 +26,6 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
     private final RateLimitingFilter rateLimiter;
-
-    @Value("${sky.security.dev-passwords.admin:}")
-    private String adminPassword;
-
-    @Value("${sky.security.dev-passwords.user:}")
-    private String userPassword;
-
-    @Value("${sky.security.dev-passwords.readonly:}")
-    private String readonlyPassword;
 
     @Value("${sky.security.cors-origins:http://localhost:5173,capacitor://localhost,http://localhost}")
     private List<String> corsOrigins;
@@ -70,33 +58,6 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        if (!adminPassword.isBlank()) {
-            manager.createUser(User.builder()
-                    .username("admin")
-                    .password(encoder.encode(adminPassword))
-                    .roles("ADMIN", "USER")
-                    .build());
-        }
-        if (!userPassword.isBlank()) {
-            manager.createUser(User.builder()
-                    .username("user")
-                    .password(encoder.encode(userPassword))
-                    .roles("USER")
-                    .build());
-        }
-        if (!readonlyPassword.isBlank()) {
-            manager.createUser(User.builder()
-                    .username("readonly")
-                    .password(encoder.encode(readonlyPassword))
-                    .roles("READONLY")
-                    .build());
-        }
-        return manager;
     }
 
     private CorsConfigurationSource corsSource() {

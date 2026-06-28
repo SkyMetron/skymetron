@@ -5,9 +5,20 @@ let mainWindow: BrowserWindow | null = null;
 
 export function initUpdater(window: BrowserWindow) {
   mainWindow = window;
-
+  setupListeners();
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.checkForUpdates();
+}
+
+export function checkNow(window: BrowserWindow) {
+  mainWindow = window;
+  autoUpdater.checkForUpdates();
+}
+
+function setupListeners() {
+  if ((autoUpdater as any).__listenersSetup) return;
+  (autoUpdater as any).__listenersSetup = true;
 
   autoUpdater.on('checking-for-update', () => {
     mainWindow?.webContents.send('update-status', 'checking');
@@ -44,8 +55,6 @@ export function initUpdater(window: BrowserWindow) {
       message: err.message,
     });
   });
-
-  autoUpdater.checkForUpdates();
 }
 
 export function downloadUpdate() {

@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
-import { initUpdater, downloadUpdate, installUpdate } from './updater';
+import { initUpdater, downloadUpdate, installUpdate, checkNow } from './updater';
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -39,12 +39,17 @@ function createWindow() {
 
   if (app.isPackaged) {
     initUpdater(mainWindow);
+    setInterval(() => checkNow(mainWindow!), 30 * 60 * 1000);
   }
 }
 
 ipcMain.handle('update:check', () => {
-  if (mainWindow && app.isPackaged) {
-    initUpdater(mainWindow);
+  if (mainWindow) {
+    if (app.isPackaged) {
+      checkNow(mainWindow);
+    } else {
+      mainWindow.webContents.send('update-status', 'not-available');
+    }
   }
 });
 

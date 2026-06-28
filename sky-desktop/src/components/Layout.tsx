@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { path: '/loops', icon: '\u26A1', label: 'Loops' },
   { path: '/providers', icon: '\uD83D\uDEE1\uFE0F', label: 'Providers' },
   { path: '/config', icon: '\u2699\uFE0F', label: 'Settings' },
+  { path: '/privacy', icon: '\uD83D\uDD10', label: 'Privacy' },
 ];
 
 export default function Layout() {

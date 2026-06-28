@@ -5,3 +5,5 @@ release/
 .vite/
 *.log
 .env
+test-results/
+playwright-report/

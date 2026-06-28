@@ -150,3 +150,51 @@ Initial beta release of SkyMetron — an autonomous AI Operating System.
 - `CHANGELOG.md` — complete sprint-by-sprint history
 - Release automation scripts
 - 202 tests, 0 failures, `mvn clean verify` BUILD SUCCESS
+
+## v0.2.0-beta (2026-06-28)
+
+### Sprint 16 — GitHub OAuth, Bootstrap, LGPD, Auto-Update
+
+**Backend — Authentication overhaul:**
+- Removed local password login — replaced entirely by GitHub OAuth
+- `GitHubAuthService` — OAuth code exchange, user profile, org membership check
+- `AuthController` — `GET /api/auth/github/url`, `POST /api/auth/github`, `GET /api/auth/me`
+- `SecurityConfig` — stripped in-memory users, added JWT filter + rate limiter
+
+**Backend — Workspace Bootstrap:**
+- `WorkspaceBootstrapService` — auto-detect Docker/Java/Git/Ollama/PostgreSQL/RabbitMQ/Redis
+- `VaultBootstrapService` — scan vault directory for markdown files
+- `ConfigService` — persistent `~/.skymetron/config.json` (save/load/clear)
+- `BootstrapController` — `GET /status`, `POST /workspace`, `POST /vault/scan`, `POST /accept-terms`, `POST /accept-lgpd`, `GET /legal-status`
+
+**Backend — LGPD/Terms Compliance:**
+- `PrivacyService` — `acceptTerms()`, `acceptLgpd()`, `exportData()`, `deleteAccount()`, `clearCache()`
+- `PrivacyController` — `POST /export`, `DELETE /account`, `POST /clear-cache`
+- Mandatory LGPD + Terms acceptance before first dashboard access
+
+**Backend — Auto-Update:**
+- `UpdateService` — checks GitHub API for latest release (tag, name, date, prerelease)
+- `UpdateController` — `GET /api/update/check`
+
+**Desktop — 5 New Pages:**
+- `LoginPage` — "Entrar com GitHub" button + demo login fallback
+- `LegalPage` — Terms + LGPD expansion panels with accept/decline
+- `BootstrapPage` — 4-step progress (env, workspace, vault, config) + tools grid
+- `PrivacyPage` — export data, revoke GitHub, clear cache, delete account
+- `CallbackPage` — handles GitHub OAuth redirect with error/spinner feedback
+
+**Desktop — Onboarding Guard:**
+- Auth state machine in `App.tsx`: `loading` → `login` → `legal` → `bootstrap` → `ready`
+- Three onboarding pages rendered outside `Layout` (no sidebar)
+- API client extended with OAuth, bootstrap, privacy, and update methods
+
+**Desktop — Auto-Update:**
+- `electron/main.ts` — periodic `checkNow()` every 30 minutes
+- `electron/updater.ts` — `checkNow()` export, listener guard to prevent duplicate registrations
+- `electron/preload.ts` — update IPC bridge
+
+**Testing:**
+- 54 new backend tests: `GitHubAuthServiceTest`, `WorkspaceBootstrapServiceTest`, `VaultBootstrapServiceTest`, `ConfigServiceTest`, `PrivacyServiceTest`, `UpdateServiceTest`, `BootstrapControllerTest`, `PrivacyControllerTest`, `UpdateControllerTest`, `AuthControllerTest`
+- 11 Playwright E2E tests for onboarding, authenticated routes, maintainer flow, privacy, config version
+- 256 total backend tests, 0 failures — `mvn clean verify` BUILD SUCCESS
+- Desktop: 11/11 E2E passing, `npm run build` clean

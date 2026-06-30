@@ -1,0 +1,10 @@
+SkyMetron - Aviso LGPD
+Versao: 2026-06-28-v1
+
+O SkyMetron e um app local/desktop. A maior parte dos dados permanece no computador do usuario. Dados podem ser enviados a GitHub e providers de IA quando o usuario configurar e usar esses servicos.
+
+Finalidades: autenticacao, bootstrap de workspace, execucao assistida por IA, memoria/vault local, logs de diagnostico, atualizacoes automaticas e configuracao de providers.
+
+Controles: aceite legal versionado, exportacao local, exclusao de dados locais, limpeza de cache/logs, mascaramento de secrets em exportacoes e .env gitignored.
+
+Ressalvas beta: rotacao centralizada de logs, revogacao remota em providers e criptografia uniforme de todos os arquivos locais ainda sao melhorias pendentes.

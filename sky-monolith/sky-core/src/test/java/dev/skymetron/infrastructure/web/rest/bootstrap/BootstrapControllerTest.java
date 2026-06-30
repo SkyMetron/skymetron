@@ -110,26 +110,44 @@ class BootstrapControllerTest {
     @Test
     @DisplayName("POST /accept-terms accepts terms")
     void acceptTerms() throws Exception {
-        ResponseEntity<?> response = controller.acceptTerms();
+        when(privacyService.legalStatus()).thenReturn(Map.of(
+            "termsAccepted", true,
+            "lgpdAccepted", false,
+            "termsVersion", "2026-06-28-v1",
+            "privacyVersion", "2026-06-28-v1",
+            "appVersion", "0.2.1-beta"));
+
+        ResponseEntity<?> response = controller.acceptTerms("test-user");
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         Map<String, Object> body = (Map<String, Object>) response.getBody();
-        assertThat(body).containsEntry("accepted", true);
+        assertThat(body).containsEntry("termsAccepted", true);
     }
 
     @Test
     @DisplayName("POST /accept-lgpd accepts LGPD")
     void acceptLgpd() throws Exception {
-        ResponseEntity<?> response = controller.acceptLgpd();
+        when(privacyService.legalStatus()).thenReturn(Map.of(
+            "termsAccepted", true,
+            "lgpdAccepted", true,
+            "termsVersion", "2026-06-28-v1",
+            "privacyVersion", "2026-06-28-v1",
+            "appVersion", "0.2.1-beta"));
+
+        ResponseEntity<?> response = controller.acceptLgpd("test-user");
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         Map<String, Object> body = (Map<String, Object>) response.getBody();
-        assertThat(body).containsEntry("accepted", true);
+        assertThat(body).containsEntry("lgpdAccepted", true);
     }
 
     @Test
     @DisplayName("GET /legal-status returns acceptance status")
     void legalStatus() throws Exception {
-        when(privacyService.hasAcceptedTerms()).thenReturn(true);
-        when(privacyService.hasAcceptedLgpd()).thenReturn(false);
+        when(privacyService.legalStatus()).thenReturn(Map.of(
+            "termsAccepted", true,
+            "lgpdAccepted", false,
+            "termsVersion", "2026-06-28-v1",
+            "privacyVersion", "2026-06-28-v1",
+            "appVersion", "0.2.1-beta"));
 
         ResponseEntity<?> response = controller.legalStatus();
 

@@ -45,6 +45,9 @@ ENV/
 .eggs/
 dist/
 build/
+!sky-desktop/build/
+!sky-desktop/build/legal/
+!sky-desktop/build/legal/**
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/

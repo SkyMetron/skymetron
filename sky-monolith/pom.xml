@@ -13,7 +13,7 @@
 
     <groupId>dev.skymetron</groupId>
     <artifactId>sky-monolith</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.2.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>SkyMetron Monolith</name>
     <description>SkyMetron — AI Operating System. Modular monolith (Java 21 + Spring Boot 3).</description>

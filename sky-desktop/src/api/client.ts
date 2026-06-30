@@ -56,6 +56,15 @@ export interface VaultScanResult { markdownFiles: number; topFiles: string[]; }
 export interface ExportResult { path: string; sizeBytes: number; }
 export interface VaultScanResult { markdownFiles: number; totalFiles?: number; totalSizeBytes?: number; success?: boolean; }
 export interface UpdateResult { available: boolean; tagName?: string; name?: string; publishedAt?: string; prerelease?: boolean; }
+export interface LegalStatus {
+  termsAccepted: boolean;
+  lgpdAccepted: boolean;
+  termsVersion: string;
+  privacyVersion: string;
+  acceptedAt?: string | null;
+  acceptedByGitHubUser?: string | null;
+  appVersion: string;
+}
 
 export const api = {
   chat: (msg: string) => request<ChatResponse>('/api/chat', { method: 'POST', body: JSON.stringify({ message: msg }) }),
@@ -86,13 +95,13 @@ export const api = {
   bootstrapStatus: () => request<BootstrapStatus>('/api/bootstrap/status'),
   createWorkspace: () => request<WorkspaceResult>('/api/bootstrap/workspace', { method: 'POST' }),
   scanVault: () => request<VaultScanResult>('/api/bootstrap/vault/scan', { method: 'POST' }),
-  acceptTerms: () => request<Record<string, string>>('/api/bootstrap/accept-terms', { method: 'POST' }),
-  acceptLgpd: () => request<Record<string, string>>('/api/bootstrap/accept-lgpd', { method: 'POST' }),
-  legalStatus: () => request<{ termsAccepted: boolean; lgpdAccepted: boolean }>('/api/bootstrap/legal-status'),
+  acceptTerms: () => request<LegalStatus>('/api/bootstrap/accept-terms', { method: 'POST' }),
+  acceptLgpd: () => request<LegalStatus>('/api/bootstrap/accept-lgpd', { method: 'POST' }),
+  legalStatus: () => request<LegalStatus>('/api/bootstrap/legal-status'),
 
   exportData: () => request<ExportResult>('/api/privacy/export', { method: 'POST' }),
   deleteAccount: () => request<Record<string, string>>('/api/privacy/account', { method: 'DELETE' }),
-  clearCache: () => request<Record<string, string>>('/api/privacy/cache', { method: 'POST' }),
+  clearCache: () => request<Record<string, string>>('/api/privacy/clear-cache', { method: 'POST' }),
 
   checkUpdate: () => request<UpdateResult>('/api/update/check'),
 };

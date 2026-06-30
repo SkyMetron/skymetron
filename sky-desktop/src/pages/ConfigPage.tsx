@@ -40,7 +40,7 @@ export default function ConfigPage() {
         <div className="card">
           <div className="card-header"><span>About SkyMetron</span></div>
           <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6 }}>
-            Version 0.2.0-beta &middot; AI Operating System
+            Version 0.2.1-beta &middot; AI Operating System
             <br />
             10 agents &middot; Multi-provider LLM (100% free) &middot; PostgreSQL + pgvector &middot; RabbitMQ event bus
             <br />

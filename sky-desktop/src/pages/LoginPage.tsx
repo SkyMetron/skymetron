@@ -48,7 +48,7 @@ export default function LoginPage() {
           {error && <div className="login-error">{error}</div>}
         </div>
         <div className="login-footer">
-          <span>v0.2.0-beta</span>
+          <span>v0.2.1-beta</span>
         </div>
       </div>
     </div>

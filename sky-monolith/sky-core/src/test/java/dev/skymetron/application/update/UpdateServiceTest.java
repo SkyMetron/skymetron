@@ -1,12 +1,25 @@
 package dev.skymetron.application.update;
 
+import dev.skymetron.application.bootstrap.ConfigService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("UpdateService tests")
 class UpdateServiceTest {
+
+    private final Path configFile = Path.of(System.getProperty("user.home"), ".skymetron", "config.json");
+
+    @AfterEach
+    void tearDown() throws Exception {
+        Files.deleteIfExists(configFile);
+    }
 
     @Test
     @DisplayName("checkLatestRelease handles response (offline or actual check)")
@@ -37,5 +50,18 @@ class UpdateServiceTest {
 
         assertThat(info.prerelease()).isTrue();
         assertThat(info.tagName()).isEqualTo("v0.3.0-rc1");
+    }
+
+    @Test
+    @DisplayName("checkLatestRelease does not overwrite legal acceptance")
+    void updateDoesNotOverwriteLegalAcceptance() throws Exception {
+        ConfigService configService = new ConfigService();
+        configService.saveLegalAcceptance(true, true, "2026-06-28-v1", "2026-06-28-v1",
+            "2026-06-28T12:00:00Z", "test-user", "0.2.1-beta");
+        Map<String, Object> before = configService.loadConfig();
+
+        new UpdateService().checkLatestRelease();
+
+        assertThat(configService.loadConfig()).isEqualTo(before);
     }
 }

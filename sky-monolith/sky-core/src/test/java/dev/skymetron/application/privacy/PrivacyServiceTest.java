@@ -16,19 +16,24 @@ class PrivacyServiceTest {
 
     private PrivacyService service;
     private Path configDir;
+    private Path configFile;
     private Path workspaceRoot;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         service = new PrivacyService();
         configDir = Path.of(System.getProperty("user.home"), ".skymetron");
+        configFile = configDir.resolve("config.json");
         workspaceRoot = Path.of(System.getProperty("user.home"), "SkyMetron");
+        Files.deleteIfExists(configFile);
     }
 
     @AfterEach
     void tearDown() throws IOException {
         Files.deleteIfExists(configDir.resolve(".terms-accepted"));
         Files.deleteIfExists(configDir.resolve(".lgpd-accepted"));
+        Files.deleteIfExists(configFile);
+        Files.deleteIfExists(workspaceRoot.resolve(".env"));
         deleteIfExists(workspaceRoot.resolve("cache"));
         deleteIfExists(workspaceRoot.resolve("logs"));
     }
@@ -40,10 +45,12 @@ class PrivacyServiceTest {
     }
 
     @Test
-    @DisplayName("acceptTerms creates marker file")
+    @DisplayName("acceptTerms stores current terms version")
     void acceptTerms() throws IOException {
-        service.acceptTerms();
+        service.acceptTerms("test-user");
         assertThat(service.hasAcceptedTerms()).isTrue();
+        assertThat(service.legalStatus()).containsEntry("termsVersion", PrivacyService.TERMS_VERSION);
+        assertThat(service.legalStatus()).containsEntry("acceptedByGitHubUser", "test-user");
     }
 
     @Test
@@ -53,10 +60,21 @@ class PrivacyServiceTest {
     }
 
     @Test
-    @DisplayName("acceptLgpd creates marker file")
+    @DisplayName("acceptLgpd stores current privacy version")
     void acceptLgpd() throws IOException {
-        service.acceptLgpd();
+        service.acceptLgpd("test-user");
         assertThat(service.hasAcceptedLgpd()).isTrue();
+        assertThat(service.legalStatus()).containsEntry("privacyVersion", PrivacyService.PRIVACY_VERSION);
+    }
+
+    @Test
+    @DisplayName("legal acceptance requires current versions")
+    void legalAcceptanceRequiresCurrentVersions() throws IOException {
+        Files.createDirectories(configDir);
+        Files.writeString(configFile, "{\"termsAccepted\":true,\"lgpdAccepted\":true,\"termsVersion\":\"old\",\"privacyVersion\":\"old\"}");
+
+        assertThat(service.hasAcceptedTerms()).isFalse();
+        assertThat(service.hasAcceptedLgpd()).isFalse();
     }
 
     @Test
@@ -87,6 +105,43 @@ class PrivacyServiceTest {
         var result = service.exportData();
         assertThat(result.path()).isNotNull();
         assertThat(Path.of(result.path())).isDirectory();
+    }
+
+    @Test
+    @DisplayName("maskSecrets masks known provider token formats")
+    void maskSecrets() {
+        String raw = String.join("\n",
+            "OPENAI=sk-1234567890abcdef",
+            "GITHUB=ghp_1234567890abcdef",
+            "GITHUB_PAT=github_pat_1234567890abcdef",
+            "NVIDIA=nvapi-1234567890abcdef",
+            "GROQ=gsk_1234567890abcdef",
+            "GOOGLE=AIza1234567890abcdef",
+            "OPENROUTER=sk-or-1234567890abcdef");
+
+        String masked = service.maskSecrets(raw);
+
+        assertThat(masked).contains("sk-***");
+        assertThat(masked).contains("ghp_***");
+        assertThat(masked).contains("github_pat_***");
+        assertThat(masked).contains("nvapi-***");
+        assertThat(masked).contains("gsk_***");
+        assertThat(masked).contains("AIza***");
+        assertThat(masked).contains("sk-or-***");
+        assertThat(masked).doesNotContain("1234567890abcdef");
+    }
+
+    @Test
+    @DisplayName("exportData masks secrets from .env")
+    void exportDataMasksSecrets() throws IOException {
+        Files.createDirectories(workspaceRoot);
+        Files.writeString(workspaceRoot.resolve(".env"), "OPENAI_API_KEY=sk-1234567890abcdef");
+
+        var result = service.exportData();
+        String exportedEnv = Files.readString(Path.of(result.path()).resolve(".env"));
+
+        assertThat(exportedEnv).contains("OPENAI_API_KEY=sk-***");
+        assertThat(exportedEnv).doesNotContain("1234567890abcdef");
     }
 
     private static void deleteIfExists(Path dir) throws IOException {

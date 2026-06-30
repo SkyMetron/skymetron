@@ -62,6 +62,10 @@ export default function PrivacyPage() {
     window.location.href = '/';
   };
 
+  const handleRemoveProviderKeys = () => {
+    setMessage('Remova as chaves de API do arquivo .env/configuração local. Elas não serão incluídas em exportações sem mascaramento.');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div className="page-header">
@@ -95,6 +99,16 @@ export default function PrivacyPage() {
           </div>
           <button className="btn-secondary" onClick={handleClearCache} disabled={clearing} style={{ marginTop: 12 }}>
             {clearing ? 'Limpando...' : 'Limpar Cache'}
+          </button>
+        </div>
+
+        <div className="card">
+          <div className="card-header"><span>Remover Chaves de API</span></div>
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+            As chaves de providers ficam em arquivos locais de configuração. Remova-as do <code>.env</code> ou da configuração local antes de compartilhar exportações.
+          </div>
+          <button className="btn-secondary" onClick={handleRemoveProviderKeys} style={{ marginTop: 12 }}>
+            Remover chaves de API
           </button>
         </div>
 

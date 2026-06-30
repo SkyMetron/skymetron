@@ -198,3 +198,20 @@ Initial beta release of SkyMetron — an autonomous AI Operating System.
 - 11 Playwright E2E tests for onboarding, authenticated routes, maintainer flow, privacy, config version
 - 256 total backend tests, 0 failures — `mvn clean verify` BUILD SUCCESS
 - Desktop: 11/11 E2E passing, `npm run build` clean
+
+## v0.2.1-beta (2026-06-30)
+
+### Sprint 17 — LGPD and Installer Terms Patch
+
+- Added Terms of Use to Windows installer.
+- Added Privacy/LGPD notice to installer.
+- Added legal documents: `TERMS_OF_USE.md`, `PRIVACY_POLICY.md`, `LGPD.md`, `DATA_PROCESSING.md`, `THIRD_PARTY_PROVIDERS.md`, `SECURITY.md`, `DISCLAIMER.md`.
+- Added installer legal text files under `sky-desktop/build/legal/`.
+- Added LGPD technical audit: `docs/audits/LGPD_AUDIT_v0.2.1-beta.md`.
+- Improved app legal acceptance tracking with terms/privacy versions, timestamp, GitHub user and app version in `~/.skymetron/config.json`.
+- Kept in-app legal acceptance gate after installer acceptance.
+- Added privacy/export/delete/cache/revoke validation in UI and tests.
+- Added secret masking for exported `.env`/config data (`sk-*`, `ghp_*`, `github_pat_*`, `nvapi-*`, `gsk_*`, `AIza*`, `sk-or-*`).
+- Fixed desktop privacy API path for clearing cache/logs.
+- Aligned Maven modules to `0.2.1-SNAPSHOT` and desktop package to `0.2.1-beta`.
+- No feature changes.

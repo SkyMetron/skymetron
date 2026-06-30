@@ -1,6 +1,6 @@
 {
   "name": "sky-desktop",
-  "version": "0.2.0-beta",
+  "version": "0.2.1-beta",
   "private": true,
   "main": "dist-electron/main.js",
   "scripts": {
@@ -12,6 +12,7 @@
     "electron:build:win": "npm run build && electron-builder --win",
     "electron:build:mac": "npm run build && electron-builder --mac",
     "electron:build:linux": "npm run build && electron-builder --linux",
+    "dist": "npm run build && electron-builder --win",
     "test:e2e": "playwright test",
     "publish": "npm run build && electron-builder --publish always"
   },
@@ -71,7 +72,8 @@
     "nsis": {
       "oneClick": false,
       "perMachine": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "license": "build/legal/TERMS_OF_USE.txt"
     }
   }
 }

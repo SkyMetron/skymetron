@@ -98,10 +98,10 @@ public class BootstrapController {
 
     @Operation(summary = "Accept terms", description = "Mark terms of service as accepted")
     @PostMapping("/accept-terms")
-    public ResponseEntity<?> acceptTerms() {
+    public ResponseEntity<?> acceptTerms(@RequestAttribute(name = "username", required = false) String username) {
         try {
-            privacyService.acceptTerms();
-            return ResponseEntity.ok(Map.of("accepted", true));
+            privacyService.acceptTerms(username);
+            return ResponseEntity.ok(privacyService.legalStatus());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of(
                 "error", "Failed to accept terms",
@@ -112,10 +112,10 @@ public class BootstrapController {
 
     @Operation(summary = "Accept LGPD", description = "Mark LGPD privacy policy as accepted")
     @PostMapping("/accept-lgpd")
-    public ResponseEntity<?> acceptLgpd() {
+    public ResponseEntity<?> acceptLgpd(@RequestAttribute(name = "username", required = false) String username) {
         try {
-            privacyService.acceptLgpd();
-            return ResponseEntity.ok(Map.of("accepted", true));
+            privacyService.acceptLgpd(username);
+            return ResponseEntity.ok(privacyService.legalStatus());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of(
                 "error", "Failed to accept LGPD",
@@ -127,9 +127,6 @@ public class BootstrapController {
     @Operation(summary = "Check legal acceptance", description = "Check if terms and LGPD have been accepted")
     @GetMapping("/legal-status")
     public ResponseEntity<?> legalStatus() {
-        return ResponseEntity.ok(Map.of(
-            "termsAccepted", privacyService.hasAcceptedTerms(),
-            "lgpdAccepted", privacyService.hasAcceptedLgpd()
-        ));
+        return ResponseEntity.ok(privacyService.legalStatus());
     }
 }

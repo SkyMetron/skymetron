@@ -1,0 +1,21 @@
+SkyMetron 0.2.1-beta - Termos de Uso, Privacidade e LGPD
+Versao dos termos: 2026-06-28-v1
+Versao da politica de privacidade: 2026-06-28-v1
+
+SkyMetron e uma ferramenta local/desktop para organizacao, automacao, execucao assistida por IA, gerenciamento de workspace, integracao com GitHub e uso de providers de IA configurados pelo proprio usuario.
+
+Esta versao e beta. Pode conter erros, instabilidades, falhas de integracao e comportamentos inesperados. O uso e por conta e risco do usuario.
+
+O usuario e responsavel por configurar suas proprias chaves de API, revisar acoes antes de executar, nao usar o app para fins ilegais, manter backups, revisar comandos sugeridos por IA e nao armazenar dados sensiveis sem necessidade.
+
+Nao ha garantia de disponibilidade, resultado, compatibilidade com todos os ambientes ou adequacao a finalidade especifica.
+
+Respostas de IA podem estar erradas. Automacoes devem ser revisadas. Agentes nao substituem decisao humana. Acoes destrutivas precisam de confirmacao.
+
+O app pode usar servicos externos configurados pelo usuario, incluindo GitHub, OpenAI, NVIDIA, Google, Groq, Mistral, OpenRouter, Cerebras, MiniMax e Ollama/local. O SkyMetron nao vende chaves de API. O usuario fornece suas proprias credenciais. Cada provider possui seus proprios termos e politicas.
+
+Dados podem incluir usuario GitHub, token de sessao local, caminhos de workspace, configuracoes, logs tecnicos, historico local, vault local, prompts/respostas enviados a providers configurados, chaves de API fornecidas pelo usuario e metadados de atualizacao.
+
+Dados locais permanecem no computador do usuario ate exclusao. Dados sao enviados a terceiros apenas quando o usuario configura e usa providers externos ou GitHub. Exportacoes mascaram formatos conhecidos de secrets, mas o usuario deve revisar conteudo antes de compartilhar.
+
+Ao continuar, voce declara que leu e aceita os Termos de Uso e a Politica de Privacidade/LGPD do SkyMetron.

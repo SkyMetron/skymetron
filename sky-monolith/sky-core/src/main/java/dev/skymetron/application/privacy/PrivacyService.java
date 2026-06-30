@@ -1,10 +1,14 @@
 package dev.skymetron.application.privacy;
 
+import dev.skymetron.application.bootstrap.ConfigService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,6 +22,20 @@ public class PrivacyService {
     private static final Path HOME = Paths.get(System.getProperty("user.home"));
     private static final Path WORKSPACE_ROOT = HOME.resolve("SkyMetron");
     private static final Path CONFIG_DIR = HOME.resolve(".skymetron");
+    public static final String TERMS_VERSION = "2026-06-28-v1";
+    public static final String PRIVACY_VERSION = "2026-06-28-v1";
+    public static final String APP_VERSION = "0.2.1-beta";
+
+    private final ConfigService configService;
+
+    public PrivacyService() {
+        this(new ConfigService());
+    }
+
+    @Autowired
+    public PrivacyService(ConfigService configService) {
+        this.configService = configService;
+    }
 
     public ExportResult exportData() throws IOException {
         Path exportDir = Files.createTempDirectory("skymetron-export-");
@@ -26,10 +44,10 @@ public class PrivacyService {
         Path vaultDir = WORKSPACE_ROOT.resolve("vault");
 
         if (Files.exists(configFile)) {
-            Files.copy(configFile, exportDir.resolve("config.json"));
+            copyMaskedFile(configFile, exportDir.resolve("config.json"));
         }
         if (Files.exists(envFile)) {
-            Files.copy(envFile, exportDir.resolve(".env"));
+            copyMaskedFile(envFile, exportDir.resolve(".env"));
         }
         if (Files.exists(vaultDir)) {
             copyDirectory(vaultDir, exportDir.resolve("vault"));
@@ -91,29 +109,89 @@ public class PrivacyService {
                     });
             }
         }
-        log.info("Cache cleared");
+        log.info("Cache and logs cleared");
     }
 
     public boolean hasAcceptedTerms() {
-        Path marker = CONFIG_DIR.resolve(".terms-accepted");
-        return Files.exists(marker);
+        Map<String, Object> status = legalStatus();
+        return Boolean.TRUE.equals(status.get("termsAccepted"));
     }
 
     public boolean hasAcceptedLgpd() {
-        Path marker = CONFIG_DIR.resolve(".lgpd-accepted");
-        return Files.exists(marker);
+        Map<String, Object> status = legalStatus();
+        return Boolean.TRUE.equals(status.get("lgpdAccepted"));
     }
 
     public void acceptTerms() throws IOException {
-        Files.createDirectories(CONFIG_DIR);
-        Files.createFile(CONFIG_DIR.resolve(".terms-accepted"));
-        log.info("Terms accepted");
+        acceptTerms(null);
+    }
+
+    public void acceptTerms(String username) throws IOException {
+        saveAcceptance(true, hasAcceptedLgpd(), username);
+        log.info("Terms accepted version={}", TERMS_VERSION);
     }
 
     public void acceptLgpd() throws IOException {
-        Files.createDirectories(CONFIG_DIR);
-        Files.createFile(CONFIG_DIR.resolve(".lgpd-accepted"));
-        log.info("LGPD accepted");
+        acceptLgpd(null);
+    }
+
+    public void acceptLgpd(String username) throws IOException {
+        saveAcceptance(hasAcceptedTerms(), true, username);
+        log.info("LGPD accepted version={}", PRIVACY_VERSION);
+    }
+
+    public Map<String, Object> legalStatus() {
+        Map<String, Object> config;
+        try {
+            config = configService.loadConfig();
+        } catch (IOException e) {
+            config = Map.of();
+        }
+
+        boolean termsAccepted = Boolean.TRUE.equals(config.get("termsAccepted"))
+            && TERMS_VERSION.equals(config.get("termsVersion"));
+        boolean lgpdAccepted = Boolean.TRUE.equals(config.get("lgpdAccepted"))
+            && PRIVACY_VERSION.equals(config.get("privacyVersion"));
+
+        Map<String, Object> status = new LinkedHashMap<>();
+        status.put("termsAccepted", termsAccepted);
+        status.put("lgpdAccepted", lgpdAccepted);
+        status.put("termsVersion", config.getOrDefault("termsVersion", TERMS_VERSION));
+        status.put("privacyVersion", config.getOrDefault("privacyVersion", PRIVACY_VERSION));
+        status.put("acceptedAt", config.get("acceptedAt"));
+        status.put("acceptedByGitHubUser", config.get("acceptedByGitHubUser"));
+        status.put("appVersion", config.getOrDefault("appVersion", APP_VERSION));
+        return status;
+    }
+
+    public String maskSecrets(String text) {
+        if (text == null || text.isBlank()) {
+            return text;
+        }
+        return text
+            .replaceAll("github_pat_[A-Za-z0-9_]{6,}", "github_pat_***")
+            .replaceAll("ghp_[A-Za-z0-9_]{6,}", "ghp_***")
+            .replaceAll("nvapi-[A-Za-z0-9_-]{6,}", "nvapi-***")
+            .replaceAll("gsk_[A-Za-z0-9_]{6,}", "gsk_***")
+            .replaceAll("AIza[A-Za-z0-9_-]{6,}", "AIza***")
+            .replaceAll("sk-or-[A-Za-z0-9_-]{6,}", "sk-or-***")
+            .replaceAll("sk-[A-Za-z0-9_-]{6,}", "sk-***");
+    }
+
+    private void saveAcceptance(boolean termsAccepted, boolean lgpdAccepted, String username) throws IOException {
+        configService.saveLegalAcceptance(
+            termsAccepted,
+            lgpdAccepted,
+            TERMS_VERSION,
+            PRIVACY_VERSION,
+            Instant.now().toString(),
+            username,
+            APP_VERSION
+        );
+    }
+
+    private void copyMaskedFile(Path source, Path target) throws IOException {
+        Files.writeString(target, maskSecrets(Files.readString(source)));
     }
 
     private void copyDirectory(Path source, Path target) throws IOException {

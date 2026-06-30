@@ -83,4 +83,19 @@ class ConfigServiceTest {
         service.saveConfig(Map.of("key", "new"));
         assertThat(service.loadConfig()).containsEntry("key", "new");
     }
+
+    @Test
+    @DisplayName("saveLegalAcceptance persists legal acceptance version")
+    void saveLegalAcceptance() throws Exception {
+        service.saveLegalAcceptance(true, true, "2026-06-28-v1", "2026-06-28-v1",
+            "2026-06-28T12:00:00Z", "test-user", "0.2.1-beta");
+
+        Map<String, Object> loaded = service.loadConfig();
+        assertThat(loaded).containsEntry("termsAccepted", true);
+        assertThat(loaded).containsEntry("lgpdAccepted", true);
+        assertThat(loaded).containsEntry("termsVersion", "2026-06-28-v1");
+        assertThat(loaded).containsEntry("privacyVersion", "2026-06-28-v1");
+        assertThat(loaded).containsEntry("acceptedByGitHubUser", "test-user");
+        assertThat(loaded).containsEntry("appVersion", "0.2.1-beta");
+    }
 }

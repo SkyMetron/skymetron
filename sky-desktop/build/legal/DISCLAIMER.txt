@@ -1,0 +1,7 @@
+SkyMetron 0.2.1-beta e software em desenvolvimento.
+
+Pode conter erros, instabilidades, falhas de integracao e comportamentos inesperados. Respostas de IA podem estar erradas. Comandos sugeridos por IA devem ser revisados antes da execucao.
+
+O usuario e responsavel por backups, credenciais, dados inseridos, decisoes tomadas e cumprimento de leis e termos de terceiros.
+
+Nao ha garantia de disponibilidade, compatibilidade, seguranca absoluta, resultado ou adequacao a qualquer finalidade especifica.

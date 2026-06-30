@@ -1,0 +1,11 @@
+SkyMetron - Politica de Privacidade
+Versao: 2026-06-28-v1
+
+Dados que podem ser tratados: usuario GitHub, ID GitHub, e-mail publico se disponivel, token OAuth durante login, token/JWT local, caminhos de workspace, configuracoes, preferencias, logs tecnicos, historico local, vault local, prompts e respostas processadas por providers configurados, chaves de API e metadados de atualizacao.
+
+O SkyMetron nao solicita intencionalmente dados sensiveis. O usuario pode inserir dados sensiveis em vault, prompts, documentos ou projetos locais e deve avaliar o risco.
+
+Dados locais: workspace, vault, logs, config, cache, tokens locais e chaves locais.
+Dados enviados a terceiros: apenas quando o usuario configurar provider externo ou usar funcionalidade dependente desse provider.
+
+Direitos: exportar dados locais, apagar dados locais, revogar login GitHub local, remover chaves de API, limpar cache/logs e apagar workspace/vault manualmente.
